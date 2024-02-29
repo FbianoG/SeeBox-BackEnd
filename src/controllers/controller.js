@@ -8,11 +8,11 @@ async function login(req, res) {
     try {
         const { username, password } = req.body
         const userFind = await User.findOne({ username, password })
-        if (!userFind) {
+        if (!userFind || !username || !password) {
             return res.status(400).json({ message: "Nenhum usuário encontrado." })
         }
         const token = await mid.createToken(userFind._id)
-        return res.status(200).json({ message: "Logado com sucesso!", token })
+        return res.status(200).json({ roles: userFind.roles, message: "Logado com sucesso!", token })
     } catch (error) {
         console.error(error); // Log do erro para debug
         res.status(500).json({ error: "Erro interno do servidor." });

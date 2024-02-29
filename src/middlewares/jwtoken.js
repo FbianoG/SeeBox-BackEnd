@@ -18,7 +18,7 @@ async function verifyToken(req, res, next) { // validação do token
     }
 }
 async function createToken(e) { // cria o token
-    const token = await jwt.sign({ id: e }, secretKey, { expiresIn: "1h" }) //{id: "valor a ser criptografado"}, chave secreta, { expiresIn: 1h, 10m 30s}
+    const token = await jwt.sign({ id: e }, secretKey, { expiresIn: "3h" }) //{id: "valor a ser criptografado"}, chave secreta, { expiresIn: 1h, 10m 30s}
     return token
 }
 
