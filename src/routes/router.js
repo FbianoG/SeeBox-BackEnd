@@ -7,7 +7,7 @@ router.post("/login", control.login)
 
 router.get("/getLeitos", control.getLeitos)
 
-router.get("/", control.a)
+
 
 
 
