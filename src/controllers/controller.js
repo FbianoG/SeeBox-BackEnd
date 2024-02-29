@@ -7,7 +7,7 @@ async function login(req, res) {
         const { username, password } = req.body
         const userFind = await User.findOne({ username, password })
         if (!userFind) {
-            return res.status(400).json({message:"Nenhum usuário encontrado."})
+            return res.status(400).json({ message: "Nenhum usuário encontrado." })
         }
         console.log(userFind);
         res.status(200).json({ message: "Logado com sucesso!" })
@@ -17,4 +17,9 @@ async function login(req, res) {
 }
 
 
-module.exports = { login }
+async function home(req, res) {
+    return res.status(200).json({ message: "Bem-vindo!" })
+}
+
+
+module.exports = { login, home }
