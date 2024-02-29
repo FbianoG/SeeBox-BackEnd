@@ -21,5 +21,10 @@ async function home(req, res) {
     return res.status(200).json({ message: "Bem-vindo!" })
 }
 
+function a(req, res) {
+    res.json({ message: "hello, world !" })
 
-module.exports = { login, home }
+}
+
+
+module.exports = { login, home, a }
