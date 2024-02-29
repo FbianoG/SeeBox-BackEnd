@@ -1,7 +1,4 @@
 const { User } = require('../models/model')
-
-
-
 async function login(req, res) {
     try {
         const { username, password } = req.body
@@ -15,16 +12,12 @@ async function login(req, res) {
         res.status(500).json({ message: "Erro de servidor" })
     }
 }
-
-
 async function home(req, res) {
     return res.status(200).json({ message: "Bem-vindo!" })
 }
-
 function a(req, res) {
     return res.status(200).send("Olá")
 
 }
-
 
 module.exports = { login, home, a }
