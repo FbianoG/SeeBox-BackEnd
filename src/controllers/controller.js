@@ -22,7 +22,7 @@ async function home(req, res) {
 }
 
 function a(req, res) {
-    res.json({ message: "hello, world !" })
+    return res.status(200).send("Olá")
 
 }
 
