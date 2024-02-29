@@ -36,8 +36,8 @@ async function updateLeito(req, res) {
         const salta = userFind.salta
         const alta = userFind.alta
         if (name == "" && plan == "") {
-            salta == false
-            alta == false
+            salta = false
+            alta = false
         }
         const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota, int, salta, alta })
         return res.status(201).json({ message: "Leito atualizado com sucesso." })
