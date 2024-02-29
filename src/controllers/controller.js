@@ -14,7 +14,8 @@ async function login(req, res) {
         const token = await mid.createToken(userFind._id)
         return res.status(200).json({ message: "Logado com sucesso!", token })
     } catch (error) {
-        res.status(500).json({ message: "Erro de servidor" })
+        console.error(error); // Log do erro para debug
+        res.status(500).json({ error: "Erro interno do servidor." });
     }
 }
 
