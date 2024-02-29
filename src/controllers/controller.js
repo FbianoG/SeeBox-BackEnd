@@ -1,5 +1,7 @@
 const { User, Leito } = require('../models/model')
+const mid = require('../middlewares/jwtoken')
 const path = require('path');
+const { create } = require('domain');
 
 
 async function login(req, res) {
@@ -9,8 +11,8 @@ async function login(req, res) {
         if (!userFind) {
             return res.status(400).json({ message: "Nenhum usuário encontrado." })
         }
-
-        return res.status(200).json({ message: "Logado com sucesso!" })
+        const token = await mid.createToken(userFind._id)
+        return res.status(200).json({ message: "Logado com sucesso!", token })
     } catch (error) {
         res.status(500).json({ message: "Erro de servidor" })
     }
