@@ -30,9 +30,16 @@ async function getLeitos(req, res) {
 
 async function updateLeito(req, res) {
     try {
-        const { id, name, plan, obs, nota } = req.body
-        console.log(id, name, plan);
-        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota })
+        const { id, name, plan, obs, nota, int, } = req.body
+
+        const userFind = await Leito.findById({ _id: id })
+        const salta = userFind.salta
+        const alta = userFind.alta
+        if (name == "" && plan == "") {
+            salta == false
+            alta == false
+        }
+        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota, int, salta, alta })
         return res.status(201).json({ message: "Leito atualizado com sucesso." })
     } catch (error) {
         return res.status(500).json({ message: "Erro de servidor." })
