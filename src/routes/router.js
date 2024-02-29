@@ -6,7 +6,7 @@ const mid = require("../middlewares/jwtoken")
 
 router.post("/login", control.login)
 
-router.post("/getLeitos", control.getLeitos)
+router.post("/getLeitos", mid.verifyToken, control.getLeitos)
 
 
 
