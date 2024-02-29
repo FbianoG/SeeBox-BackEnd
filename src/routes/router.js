@@ -5,7 +5,7 @@ const control = require('../controllers/controller')
 
 router.post("/login", control.login)
 
-router.post("/home", control.home)
+router.get("/home", control.home)
 
 
 
