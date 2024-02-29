@@ -27,4 +27,15 @@ async function getLeitos(req, res) {
     }
 }
 
-module.exports = { login, getLeitos }
+
+async function updateLeito(req, res) {
+    try {
+        const { id, name, plan, obs, nota } = req.body
+        const userUpdate = await User.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota })
+        return res.status(201).json({ message: "Leito atualizado com sucesso." })
+    } catch (error) {
+        return res.status(500).json({ message: "Erro de servidor." })
+    }
+}
+
+module.exports = { login, getLeitos, updateLeito }
