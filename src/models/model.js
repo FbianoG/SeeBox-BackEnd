@@ -12,6 +12,7 @@ const Leito = mongoose.model("leito", {
     salt: Boolean,
     alta: Boolean,
     nota: Boolean,
+    conc: Boolean,
     int: Boolean,
 })
 
