@@ -1,4 +1,7 @@
 const { User } = require('../models/model')
+const path = require('path');
+
+
 async function login(req, res) {
     try {
         const { username, password } = req.body
