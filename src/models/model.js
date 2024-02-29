@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const User = mongoose.model("user", {
     username: String,
     password: String,
+    roles: String,
 })
 
 const Leito = mongoose.model("leito", {

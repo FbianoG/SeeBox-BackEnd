@@ -1,7 +1,7 @@
 const { User, Leito } = require('../models/model')
 const mid = require('../middlewares/jwtoken')
-const path = require('path');
-const { create } = require('domain');
+
+
 
 
 async function login(req, res) {
@@ -23,7 +23,8 @@ async function getLeitos(req, res) {
         const leitos = await Leito.find({})
         return res.status(200).json({ leitos })
     } catch (error) {
-        return res.status(500).json({ message: "Erro de servidor." })
+        console.error(error); // Log do erro para debug
+        res.status(500).json({ error: "Erro interno do servidor." });
     }
 }
 
@@ -39,8 +40,8 @@ async function updateLeito(req, res) {
         const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota, conc, int, alta, })
         return res.status(201).json({ message: "Leito atualizado com sucesso." })
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Erro de servidor." })
+        console.error(error); // Log do erro para debug
+        res.status(500).json({ error: "Erro interno do servidor." });
     }
 }
 
