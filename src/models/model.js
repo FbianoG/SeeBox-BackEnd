@@ -5,4 +5,14 @@ const User = mongoose.model("user", {
     password: String,
 })
 
-module.exports = { User }
+const Leito = mongoose.model("leito", {
+    name: String,
+    plan: String,
+    obs: String,
+    salt: Boolean,
+    alta: Boolean,
+    nota: Boolean,
+    int: Boolean,
+})
+
+module.exports = { User, Leito }
