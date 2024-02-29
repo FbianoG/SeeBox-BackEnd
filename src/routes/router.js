@@ -1,5 +1,6 @@
 const router = require('express').Router()
 const control = require('../controllers/controller')
+const mid = require("../middlewares/jwtoken")
 
 
 
