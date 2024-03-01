@@ -10,7 +10,6 @@ const Leito = mongoose.model("leito", {
     name: String,
     plan: String,
     obs: String,
-    salt: Boolean,
     alta: Boolean,
     nota: Boolean,
     conc: Boolean,
