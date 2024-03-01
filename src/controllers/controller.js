@@ -34,7 +34,7 @@ async function updateLeito(req, res) {
     try {
         const { id, name, plan, obs, nota, int, conc, } = req.body
         let { alta } = req.body
-        if (!name) {
+        if (!name || name.trim() == "") {
             alta = false
         }
         const userFind = await Leito.findById({ _id: id })
