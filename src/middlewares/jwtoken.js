@@ -7,7 +7,7 @@ const secretKey = 'palavraSecreta'
 async function verifyToken(req, res, next) { // validação do token
     const { token } = req.body // caso o token seja enviado via query (...?id=adf78y87ft2)
     if (!token) {
-        return res.status(401).json({ auth: false, message: 'É necessário fazer login para acessar esta página.' })
+        return res.status(400).json({ auth: false, message: 'É necessário fazer login para acessar esta página.' })
     }
     try {
         const decoded = jwt.verify(token, secretKey) // caso o token seja válido, ele é decodificado - se não cai no CATCH

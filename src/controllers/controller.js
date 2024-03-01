@@ -12,7 +12,7 @@ async function login(req, res) {
             return res.status(400).json({ message: "Nenhum usuário encontrado." })
         }
         const token = await mid.createToken(userFind._id)
-        return res.status(200).json({ roles: userFind.roles, message: "Logado com sucesso!", token })
+        return res.status(200).json({ auth: true, roles: userFind.roles, message: "Logado com sucesso!", token })
     } catch (error) {
         console.error(error); // Log do erro para debug
         res.status(500).json({ error: "Erro interno do servidor." });
@@ -34,10 +34,6 @@ async function updateLeito(req, res) {
     try {
         const { id, name, plan, obs, nota, int, conc } = req.body
         const userFind = await Leito.findById({ _id: id })
-        let alta = userFind.alta
-        if (name == "" && plan == "") {
-            alta = false
-        }
         const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, plan, obs, nota, conc, int, alta, })
         return res.status(201).json({ message: "Leito atualizado com sucesso." })
     } catch (error) {
