@@ -11,14 +11,13 @@ const Leito = mongoose.model("leito", {
     age: String,
     plan: String,
     obs: String,
-    alta: Boolean,
     nota: Boolean,
     conc: Boolean,
     pres: Boolean,
     exa: Boolean,
+    tev: Boolean,
     int: Boolean,
     hour: String,
-    inter: Boolean,
     stats: String
 })
 
