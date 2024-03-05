@@ -34,16 +34,15 @@ async function updateLeito(req, res) {
     try {
         const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, } = req.body
         let { hour, stats } = req.body
-
-        console.log(req.body);
+        
         if (!name || name.trim() == "") {
             stats = null
             hour = null
         }
         const userFind = await Leito.findById({ _id: id })
 
-        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats })
-        return res.status(201).json({ message: "Leito atualizado com sucesso." })
+        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats }, { new: true })
+        return res.status(201).json({ status: 201, message: "Leito atualizado com sucesso.", userUpdate })
     } catch (error) {
         console.error(error); // Log do erro para debug
         res.status(500).json({ error: "Erro interno do servidor." });
