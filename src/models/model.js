@@ -18,7 +18,8 @@ const Leito = mongoose.model("leito", {
     tev: Boolean,
     int: Boolean,
     hour: String,
-    stats: String
+    stats: String,
+    room: String,
 })
 
 module.exports = { User, Leito }

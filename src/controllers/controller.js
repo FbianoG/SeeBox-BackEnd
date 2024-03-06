@@ -32,16 +32,16 @@ async function getLeitos(req, res) {
 
 async function updateLeito(req, res) {
     try {
-        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, } = req.body
+        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, room } = req.body
         let { hour, stats } = req.body
-        
+
         if (!name || name.trim() == "") {
             stats = null
             hour = null
         }
         const userFind = await Leito.findById({ _id: id })
-
-        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats }, { new: true })
+        console.log(req.body);
+        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats, room }, { new: true })
         return res.status(201).json({ status: 201, message: "Leito atualizado com sucesso.", userUpdate })
     } catch (error) {
         console.error(error); // Log do erro para debug
