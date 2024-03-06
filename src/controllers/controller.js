@@ -32,12 +32,13 @@ async function getLeitos(req, res) {
 
 async function updateLeito(req, res) {
     try {
-        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, room } = req.body
-        let { hour, stats } = req.body
+        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, } = req.body
+        let { hour, stats, room } = req.body
 
         if (!name || name.trim() == "") {
             stats = null
             hour = null
+            room = null
         }
         const userFind = await Leito.findById({ _id: id })
         console.log(req.body);
