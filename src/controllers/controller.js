@@ -46,10 +46,11 @@ async function updateLeito(req, res) {
         let { hour, stats, room } = req.body
 
         if (!name || name.trim() == "") {
-            stats = undefined
-            hour = undefined
-            room = undefined
+            stats = ""
+            hour = ""
+            room = ""
         }
+        console.log(room);
         const userFind = await Leito.findById({ _id: id })
         console.log(req.body);
         const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats, room }, { new: true })
