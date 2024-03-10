@@ -1,5 +1,8 @@
 const { User, Leito } = require('../models/model')
 const mid = require('../middlewares/jwtoken')
+const bcrypt = require('bcrypt')
+const saltRounds = 10
+
 
 
 
@@ -7,9 +10,16 @@ const mid = require('../middlewares/jwtoken')
 async function login(req, res) {
     try {
         const { username, password } = req.body
-        const userFind = await User.findOne({ username, password })
-        if (!userFind || !username || !password) {
-            return res.status(400).json({ message: "Nenhum usuário encontrado." })
+        if (!username || !password) {
+            return res.status(400).json({ message: "Preencha todos os campos." })
+        }
+        const userFind = await User.findOne({ username })
+        if (!userFind) {
+            return res.status(401).json({ message: "Nenhum usuário encontrado." })
+        }
+        const result = await bcrypt.compare(password, userFind.password)
+        if (!result) {
+            return res.status(401).json({ message: "Nenhum usuário encontrado." })
         }
         const token = await mid.createToken(userFind._id)
         return res.status(200).json({ auth: true, roles: userFind.roles, message: "Logado com sucesso!", token })
@@ -36,9 +46,9 @@ async function updateLeito(req, res) {
         let { hour, stats, room } = req.body
 
         if (!name || name.trim() == "") {
-            stats = null
-            hour = null
-            room = null
+            stats = undefined
+            hour = undefined
+            room = undefined
         }
         const userFind = await Leito.findById({ _id: id })
         console.log(req.body);
