@@ -1,7 +1,7 @@
 const { User, Leito } = require('../models/model')
 const mid = require('../middlewares/jwtoken')
 const bcrypt = require('bcrypt')
-const saltRounds = 10
+// const saltRounds = 10
 
 
 

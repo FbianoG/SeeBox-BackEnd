@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
-const secretKey = 'palavraSecreta'
+require('dotenv').config()
+const secretKey = process.env.SECRET_KEY
 
 
 
