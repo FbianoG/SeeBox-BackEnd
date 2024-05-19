@@ -22,4 +22,26 @@ const Leito = mongoose.model("leito", {
     room: String,
 })
 
-module.exports = { User, Leito }
+const Patient = mongoose.model('Patient', {
+    name: String,
+    age: String,
+    plan: String,
+    box: String,
+    room: String,
+    stats: String,
+    active: Boolean,
+    alta: String,
+    data: {
+        src: String,
+        obs: String,
+        nota: Boolean,
+        conc: Boolean,
+        pres: Boolean,
+        exa: Boolean,
+        tev: Boolean,
+        int: Boolean,
+        hour: String,
+    }
+})
+
+module.exports = { User, Leito, Patient }

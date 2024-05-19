@@ -6,8 +6,8 @@ const secretKey = process.env.SECRET_KEY
 
 
 async function verifyToken(req, res, next) { // validação do token
-    const { token } = req.body // caso o token seja enviado via query (...?id=adf78y87ft2)
-    if (!token) {
+    const token = req.headers.authorization.split(' ')[1] // caso o token seja enviado via query (...?id=adf78y87ft2)
+    if (!token || token.trim() == '') {
         return res.status(400).json({ auth: false, message: 'É necessário fazer login para acessar esta página.' })
     }
     try {
