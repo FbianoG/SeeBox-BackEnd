@@ -10,6 +10,7 @@ router.post("/createPatient", mid.verifyToken, control.createPatient)
 router.post("/getPatients", mid.verifyToken, control.getPatients)
 router.post("/getPatientsAlta", mid.verifyToken, control.getPatientsAlta)
 router.post("/uptadePatient", mid.verifyToken, control.uptadePatient)
+router.post("/archivePatient", mid.verifyToken, control.archivePatient)
 router.post("/updateStatus", mid.verifyToken, control.updateStatus)
 router.post("/updateRoom", mid.verifyToken, control.updateRoom)
 

@@ -41,7 +41,11 @@ const Patient = mongoose.model('Patient', {
         tev: Boolean,
         int: Boolean,
         hour: String,
-    }
+    },
+    timeArchive: Date,
+    timeCreate: Date,
+    timeInt: Date,
+    timeAlta: Date,
 })
 
 module.exports = { User, Leito, Patient }
