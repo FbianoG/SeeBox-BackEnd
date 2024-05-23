@@ -7,22 +7,16 @@ const { verifyBox } = require('../middlewares/utils')
 async function login(req, res) {
     try {
         const { username, password } = req.body.data
-        if (!username || !password) {
-            return res.status(400).json({ message: "Preencha todos os campos." })
-        }
+        if (!username || !password) return res.status(400).json({ message: "Preencha todos os campos." })
         const userFind = await User.findOne({ username })
-        if (!userFind) {
-            return res.status(401).json({ message: "Usuário ou senha inválidos." })
-        }
+        if (!userFind) return res.status(401).json({ message: "Usuário ou senha inválidos." })
         const result = await bcrypt.compare(password, userFind.password)
-        if (!result) {
-            return res.status(401).json({ message: "Usuário ou senha inválidos." })
-        }
+        if (!result) return res.status(401).json({ message: "Usuário ou senha inválidos." })
         const token = await mid.createToken(userFind._id)
         return res.status(200).json({ auth: true, roles: userFind.roles, message: "Logado com sucesso!", token })
     } catch (error) {
-        console.error(error); // Log do erro para debug
-        res.status(500).json({ error: "Erro interno do servidor." });
+        console.error(error)
+        res.status(500).json({ error: "Erro interno do servidor." })
     }
 }
 
