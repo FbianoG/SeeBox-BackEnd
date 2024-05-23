@@ -5,14 +5,14 @@ require('dotenv').config()
 
 const cors = require('cors')
 const corsOptions = {
-    origin: 'https://see-box-react.vercel.app',
+    origin: 'https://seebox.vercel.app',
     methods: ['GET', 'POST', 'PUT']
   }
 
-const app = express()
+const app = express(corsOptions)
 const port = process.env.PORT
 
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(express.static('public'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
