@@ -1,6 +1,7 @@
 const { User, Leito, Patient } = require('../models/model')
 const mid = require('../middlewares/jwtoken')
 const bcrypt = require('bcrypt')
+const { verifyBox } = require('../middlewares/utils')
 
 
 async function login(req, res) {
@@ -57,18 +58,17 @@ async function updateLeito(req, res) {
 
 // New
 async function createPatient(req, res) {
-    const { name, age, plan, box, timeCreate } = req.body
+    const { name, age, plan, box, timeCreate, spec } = req.body
     try {
-        if (!name || !age || !plan || !box) return res.status(400).json({ message: "Preencha todos os campos." })
-        const findBox = await Patient.findOne({ box, active: true })
+        if (!name || !age || !plan || !box || !spec) return res.status(400).json({ message: "Preencha todos os campos." })
+        const findBox = await verifyBox(box)
         if (findBox) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
-        const response = await Patient.create({ name, age, plan, box, active: true, stats: 'indefinido', data: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, obs: '' }, timeCreate })
+        const response = await Patient.create({ name, age, plan, box, active: true, stats: 'indefinido', spec, data: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, obs: '' }, timeCreate })
         return res.status(201).json({ message: 'Paciente incluído com sucesso!' })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Erro interno de servido.' })
     }
-
 }
 
 async function getPatients(req, res) {
@@ -93,10 +93,13 @@ async function getPatientsAlta(req, res) {
 }
 
 async function uptadePatient(req, res) {
-    const { data, _id } = req.body
+    const { _id, data, box } = req.body
+    delete data.box
     try {
-        if (!_id || _id.trim() === '' || !data) return res.status(400).json({ message: 'Paciente não encontrado.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { data })
+        if (!_id || _id.trim() === '' || !data || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
+        const findBox = await verifyBox(box)
+        if (findBox && findBox._id != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
+        const update = await Patient.findByIdAndUpdate({ _id }, { box, data })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente atualizado com sucesso!' })
     } catch (error) {

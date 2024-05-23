@@ -31,6 +31,7 @@ const Patient = mongoose.model('Patient', {
     stats: String,
     active: Boolean,
     alta: String,
+    spec: String,
     data: {
         src: String,
         obs: String,
