@@ -52,7 +52,8 @@ async function updateLeito(req, res) {
 
 // New
 async function createPatient(req, res) {
-    const { name, age, plan, box, timeCreate, spec } = req.body
+    const { name, age, plan, box, spec } = req.body
+    const timeCreate = new Date()
     try {
         if (!name || !age || !plan || !box || !spec) return res.status(400).json({ message: "Preencha todos os campos." })
         const findBox = await verifyBox(box)
@@ -67,7 +68,7 @@ async function createPatient(req, res) {
 
 async function getPatients(req, res) {
     try {
-        const patients = await Patient.find({ active: true })
+        const patients = await Patient.find({ active: true }).select('-timeAna -timeAlta')
         return res.status(200).json({ patients })
     } catch (error) {
         console.log(error);
@@ -75,15 +76,29 @@ async function getPatients(req, res) {
     }
 }
 
+// async function getPatientsAlta(req, res) {
+//     try {
+//         const patients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeArchive: -1 }).limit(60).select('name plan alta timeArchive timeCreate')
+//         const pat = patients.filter(element => new Date(element.timeCreate).getDate() === new Date().getDate())
+//         console.log(pat)
+//         console.log(new Date(patients[0].timeCreate).getDate())
+//         return res.status(200).json({ patients })
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ message: 'Erro interno de servidor.' })
+//     }
+
+// }
+
 async function getPatientsAlta(req, res) {
     try {
-        const patients = await Patient.find({ active: false }).sort({ timeArchive: -1 }).limit(20).select('name plan alta timeArchive')
-        return res.status(200).json({ patients })
+        const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(50)
+        // const todayPatients = altaPatients.filter(element => new Date(element.timeCreate).getDate() === new Date().getDate())
+        return res.status(200).json({ altaPatients })
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Erro interno de servidor.' })
     }
-
 }
 
 async function uptadePatient(req, res) {
@@ -103,10 +118,10 @@ async function uptadePatient(req, res) {
 }
 
 async function archivePatient(req, res) {
-    const { _id, active, alta, timeArchive } = req.body
+    const { _id, alta } = req.body
     try {
         if (!_id || _id.trim() === '') return res.status(400).json({ message: 'Paciente não encontrado.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { active, alta, timeArchive })
+        const update = await Patient.findByIdAndUpdate({ _id }, { active: false, alta, timeArchive: new Date() })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente arquivado com sucesso!' })
     } catch (error) {
@@ -116,10 +131,14 @@ async function archivePatient(req, res) {
 }
 
 async function updateStatus(req, res) {
-    const { _id, stats, timeInt, timeAlta } = req.body
+    let { _id, stats, timeAna, timeInt, timeAlta } = req.body
+    let update
     try {
         if (!_id || !stats) return res.status(400).json({ message: 'Dados não fornecidos.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { stats, timeInt, timeAlta })
+        if (timeAna) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, timeAna: new Date() }, $unset: { timeInt: "", timeAlta: "" } })
+        else if (timeAlta) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, timeAlta: new Date() }, $unset: { timeInt: "" } })
+        else if (timeInt) update = await Patient.findByIdAndUpdate({ _id }, { stats, timeInt: new Date() })
+        else update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats }, $unset: { timeInt: "", timeAlta: "", timeAna: "" } })
         if (!update) return res.status(404).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Alteração realizada com sucesso!' })
     } catch (error) {
