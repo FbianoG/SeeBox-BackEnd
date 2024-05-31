@@ -4,6 +4,7 @@ const mid = require("../middlewares/jwtoken")
 
 
 
+router.post("/createUser", control.createUser)
 router.post("/login", control.login)
 // router.post("/createPatient", mid.verifyToken, control.createPatient)
 

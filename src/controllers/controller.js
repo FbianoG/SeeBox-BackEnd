@@ -1,5 +1,6 @@
 const { User, Leito, Patient } = require('../models/model')
 const mid = require('../middlewares/jwtoken')
+const bcpt = require('../middlewares/bcrypt')
 const bcrypt = require('bcrypt')
 const { verifyBox } = require('../middlewares/utils')
 
@@ -17,6 +18,27 @@ async function login(req, res) {
     } catch (error) {
         console.error(error)
         res.status(500).json({ error: "Erro interno do servidor." })
+    }
+}
+
+async function createUser(req, res) {
+    let { username, password, secundPassword, key } = req.body
+    console.log(req.body)
+    try {
+        if (!username, !password, !key) return res.status(400).json({ message: 'Preencha todos os campos.' })
+        if (key === 'm3d') roles = 'med'
+        else if (key === 'r3c') roles = 'rec'
+        else if (key === 'g3r') roles = 'ger'
+        else return res.status(400).json({ message: 'Key não validada pelo Adm.' })
+        if (password != secundPassword) return res.status(400).json({ message: 'As senhas não conferem.' })
+        const existUser = await User.exists({ username })
+        if (existUser) return res.status(400).json({ message: 'Este login já está sendo utilizado por outro usuário.' })
+        const hashPassword = await bcpt.hashPassword(password)
+        const newUser = await User.create({ username, password: hashPassword, roles })
+        return res.status(201).json({ message: 'Usuário criado com sucesso!' })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: 'Erro interno de servidor.' })
     }
 }
 
@@ -76,24 +98,10 @@ async function getPatients(req, res) {
     }
 }
 
-// async function getPatientsAlta(req, res) {
-//     try {
-//         const patients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeArchive: -1 }).limit(60).select('name plan alta timeArchive timeCreate')
-//         const pat = patients.filter(element => new Date(element.timeCreate).getDate() === new Date().getDate())
-//         console.log(pat)
-//         console.log(new Date(patients[0].timeCreate).getDate())
-//         return res.status(200).json({ patients })
-//     } catch (error) {
-//         console.log(error);
-//         return res.status(500).json({ message: 'Erro interno de servidor.' })
-//     }
-
-// }
 
 async function getPatientsAlta(req, res) {
     try {
-        const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(50)
-        // const todayPatients = altaPatients.filter(element => new Date(element.timeCreate).getDate() === new Date().getDate())
+        const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(70)
         return res.status(200).json({ altaPatients })
     } catch (error) {
         console.log(error);
@@ -106,7 +114,7 @@ async function uptadePatient(req, res) {
     delete data.box
     try {
         if (!_id || _id.trim() === '' || !data || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
-        const findBox = await verifyBox(box)
+        const findBox = await verifyBox(box) // verifica se o 'box' já está ativo
         if (findBox && findBox._id != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
         const update = await Patient.findByIdAndUpdate({ _id }, { box, data })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
@@ -160,4 +168,4 @@ async function updateRoom(req, res) {
     }
 }
 
-module.exports = { login, getLeitos, updateLeito, createPatient, getPatients, getPatientsAlta, uptadePatient, archivePatient, updateStatus, updateRoom }
+module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatients, getPatientsAlta, uptadePatient, archivePatient, updateStatus, updateRoom }
