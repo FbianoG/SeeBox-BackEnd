@@ -5,6 +5,37 @@ const bcrypt = require('bcrypt')
 const { verifyBox } = require('../middlewares/utils')
 
 
+async function getLeitos(req, res) {
+    try {
+        const leitos = await Leito.find({})
+        return res.status(200).json({ leitos })
+    } catch (error) {
+        console.error(error); // Log do erro para debug
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+}
+
+async function updateLeito(req, res) {
+    try {
+        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, } = req.body
+        let { hour, stats, room } = req.body
+
+        if (!name || name.trim() == "") {
+            stats = ""
+            hour = ""
+            room = ""
+        }
+        const userFind = await Leito.findById({ _id: id })
+        console.log(req.body);
+        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats, room }, { new: true })
+        return res.status(201).json({ status: 201, message: "Leito atualizado com sucesso.", userUpdate })
+    } catch (error) {
+        console.error(error); // Log do erro para debug
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+}
+
+// New
 async function login(req, res) {
     try {
         const { username, password } = req.body.data
@@ -42,37 +73,6 @@ async function createUser(req, res) {
     }
 }
 
-async function getLeitos(req, res) {
-    try {
-        const leitos = await Leito.find({})
-        return res.status(200).json({ leitos })
-    } catch (error) {
-        console.error(error); // Log do erro para debug
-        res.status(500).json({ error: "Erro interno do servidor." });
-    }
-}
-
-async function updateLeito(req, res) {
-    try {
-        const { id, name, age, plan, obs, nota, conc, pres, exa, tev, int, } = req.body
-        let { hour, stats, room } = req.body
-
-        if (!name || name.trim() == "") {
-            stats = ""
-            hour = ""
-            room = ""
-        }
-        const userFind = await Leito.findById({ _id: id })
-        console.log(req.body);
-        const userUpdate = await Leito.findByIdAndUpdate({ _id: id }, { name, age, plan, obs, nota, conc, pres, exa, tev, int, hour, stats, room }, { new: true })
-        return res.status(201).json({ status: 201, message: "Leito atualizado com sucesso.", userUpdate })
-    } catch (error) {
-        console.error(error); // Log do erro para debug
-        res.status(500).json({ error: "Erro interno do servidor." });
-    }
-}
-
-// New
 async function createPatient(req, res) {
     const { name, age, plan, box, spec } = req.body
     const timeCreate = new Date()
@@ -80,7 +80,8 @@ async function createPatient(req, res) {
         if (!name || !age || !plan || !box || !spec) return res.status(400).json({ message: "Preencha todos os campos." })
         const findBox = await verifyBox(box)
         if (findBox) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
-        const response = await Patient.create({ name, age, plan, box, active: true, stats: 'indefinido', spec, data: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, obs: '' }, timeCreate })
+        const response = await Patient.create({ name, age, plan, box, active: true, stats: 'indefinido', dataMed: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, spec, obs: '' }, dataTime: { timeCreate } })
+        console.log(response)
         return res.status(201).json({ message: 'Paciente incluído com sucesso!' })
     } catch (error) {
         console.log(error);
@@ -98,7 +99,6 @@ async function getPatients(req, res) {
     }
 }
 
-
 async function getPatientsAlta(req, res) {
     try {
         const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(70)
@@ -109,14 +109,14 @@ async function getPatientsAlta(req, res) {
     }
 }
 
-async function uptadePatient(req, res) {
-    const { _id, data, box } = req.body
-    delete data.box
+async function uptadeDataMed(req, res) {
+    const { _id, dataMed, box } = req.body
+    // delete data.box
     try {
-        if (!_id || _id.trim() === '' || !data || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
+        if (!_id || _id.trim() === '' || !dataMed || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
         const findBox = await verifyBox(box) // verifica se o 'box' já está ativo
         if (findBox && findBox._id != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { box, data })
+        const update = await Patient.findByIdAndUpdate({ _id }, { box, dataMed })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente atualizado com sucesso!' })
     } catch (error) {
@@ -129,7 +129,7 @@ async function archivePatient(req, res) {
     const { _id, alta } = req.body
     try {
         if (!_id || _id.trim() === '') return res.status(400).json({ message: 'Paciente não encontrado.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { active: false, alta, timeArchive: new Date() })
+        const update = await Patient.findByIdAndUpdate({ _id }, { active: false, alta, $set: { 'dataTime.timeArchive': new Date() } })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente arquivado com sucesso!' })
     } catch (error) {
@@ -143,10 +143,10 @@ async function updateStatus(req, res) {
     let update
     try {
         if (!_id || !stats) return res.status(400).json({ message: 'Dados não fornecidos.' })
-        if (timeAna) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, timeAna: new Date() }, $unset: { timeInt: "", timeAlta: "" } })
-        else if (timeAlta) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, timeAlta: new Date() }, $unset: { timeInt: "" } })
-        else if (timeInt) update = await Patient.findByIdAndUpdate({ _id }, { stats, timeInt: new Date() })
-        else update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats }, $unset: { timeInt: "", timeAlta: "", timeAna: "" } })
+        if (timeAna) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, 'dataTime.timeAna': new Date() }, $unset: { 'dataTime.timeInt': "", 'dataTime.timeAlta': "" } })
+        else if (timeAlta) update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats, 'dataTime.timeAlta': new Date() }, $unset: { 'dataTime.timeInt': "" } })
+        else if (timeInt) update = await Patient.findByIdAndUpdate({ _id }, { stats, 'dataTime.timeInt': new Date() })
+        else update = await Patient.findByIdAndUpdate({ _id }, { $set: { stats }, $unset: { 'dataTime.timeInt': "", 'dataTime.timeAlta': "", 'dataTime.timeAna': "" } })
         if (!update) return res.status(404).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Alteração realizada com sucesso!' })
     } catch (error) {
@@ -168,4 +168,4 @@ async function updateRoom(req, res) {
     }
 }
 
-module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatients, getPatientsAlta, uptadePatient, archivePatient, updateStatus, updateRoom }
+module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatients, getPatientsAlta, uptadeDataMed, archivePatient, updateStatus, updateRoom }
