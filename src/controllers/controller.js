@@ -80,7 +80,7 @@ async function createPatient(req, res) {
         if (!name || !age || !plan || !box || !spec) return res.status(400).json({ message: "Preencha todos os campos." })
         const findBox = await verifyBox(box)
         if (findBox) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
-        const response = await Patient.create({ name, age, plan, box, active: true, stats: 'indefinido', dataMed: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, spec, obs: '' }, dataTime: { timeCreate } })
+        const response = await Patient.create({ name, age, plan, box, stats: 'indefinido', dataActive: { activeMed: true, activeEnf: true, activeRec: true }, dataMed: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, spec, obs: '' }, dataTime: { timeCreate } })
         console.log(response)
         return res.status(201).json({ message: 'Paciente incluído com sucesso!' })
     } catch (error) {
@@ -89,9 +89,9 @@ async function createPatient(req, res) {
     }
 }
 
-async function getPatients(req, res) {
+async function getPatientsMed(req, res) {
     try {
-        const patients = await Patient.find({ active: true }).select('-timeAna -timeAlta')
+        const patients = await Patient.find({ 'dataActive.activeMed': true }).select('-dataTime.timeAna -dataTime.timeAlta -dataActive')
         return res.status(200).json({ patients })
     } catch (error) {
         console.log(error);
@@ -99,9 +99,29 @@ async function getPatients(req, res) {
     }
 }
 
-async function getPatientsAlta(req, res) {
+async function getPatientsEnf(req, res) {
     try {
-        const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(70)
+        const patients = await Patient.find({ 'dataActive.activeEnf': true }).select('-dataTime.timeAna -dataTime.timeAlta -dataActive')
+        return res.status(200).json({ patients })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno de servidor.' })
+    }
+}
+
+async function getPatientsRec(req, res) {
+    try {
+        const patients = await Patient.find({ 'dataActive.activeRec': true }).select('-dataTime.timeAna -dataTime.timeAlta -dataMed')
+        return res.status(200).json({ patients })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno de servidor.' })
+    }
+}
+
+async function getPatientsAlta(req, res) { // Paciente de alta médica
+    try {
+        const altaPatients = await Patient.find({ alta: { $ne: 'outros' }}).sort({ timeCreate: -1 }).limit(70)
         return res.status(200).json({ altaPatients })
     } catch (error) {
         console.log(error);
@@ -126,10 +146,10 @@ async function uptadeDataMed(req, res) {
 }
 
 async function archivePatient(req, res) {
-    const { _id, alta } = req.body
+    const { _id, alta, sendBy } = req.body
     try {
         if (!_id || _id.trim() === '') return res.status(400).json({ message: 'Paciente não encontrado.' })
-        const update = await Patient.findByIdAndUpdate({ _id }, { active: false, alta, $set: { 'dataTime.timeArchive': new Date() } })
+        const update = await Patient.findByIdAndUpdate({ _id }, { alta, $set: { 'dataTime.timeArchive': new Date(), [`dataActive.active${sendBy}`]: false } })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente arquivado com sucesso!' })
     } catch (error) {
@@ -168,4 +188,4 @@ async function updateRoom(req, res) {
     }
 }
 
-module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatients, getPatientsAlta, uptadeDataMed, archivePatient, updateStatus, updateRoom }
+module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatientsMed, getPatientsEnf, getPatientsRec, getPatientsAlta, uptadeDataMed, archivePatient, updateStatus, updateRoom }
