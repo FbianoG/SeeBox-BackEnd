@@ -44,6 +44,11 @@ const Patient = mongoose.model('Patient', {
     },
     dataEnf: {
         obs: String,
+        test1: Boolean,
+        test2: Boolean,
+        test3: Boolean,
+        test4: Boolean,
+        test5: Boolean,
     },
     dataTime: {
         timeCreate: Date,

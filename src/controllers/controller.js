@@ -74,14 +74,12 @@ async function createUser(req, res) {
 }
 
 async function createPatient(req, res) {
-    const { name, age, plan, box, spec } = req.body
-    const timeCreate = new Date()
+    const { name, age, plan, box, spec } = req.body.data
     try {
         if (!name || !age || !plan || !box || !spec) return res.status(400).json({ message: "Preencha todos os campos." })
         const findBox = await verifyBox(box)
         if (findBox) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
-        const response = await Patient.create({ name, age, plan, box, stats: 'indefinido', dataActive: { activeMed: true, activeEnf: true, activeRec: true }, dataMed: { nota: false, conc: false, pres: false, exa: false, tev: false, int: false, spec, obs: '' }, dataTime: { timeCreate } })
-        console.log(response)
+        const response = await Patient.create({ name, age, plan, box, stats: 'indefinido', dataActive: { activeMed: true, activeEnf: true, activeRec: true }, dataMed: { spec }, dataTime: { timeCreate: new Date() } })
         return res.status(201).json({ message: 'Paciente incluído com sucesso!' })
     } catch (error) {
         console.log(error);
@@ -121,7 +119,7 @@ async function getPatientsRec(req, res) {
 
 async function getPatientsAlta(req, res) { // Paciente de alta médica
     try {
-        const altaPatients = await Patient.find({ alta: { $ne: 'outros' }}).sort({ timeCreate: -1 }).limit(70)
+        const altaPatients = await Patient.find({ alta: { $ne: 'outros' } }).sort({ timeCreate: -1 }).limit(70)
         return res.status(200).json({ altaPatients })
     } catch (error) {
         console.log(error);
