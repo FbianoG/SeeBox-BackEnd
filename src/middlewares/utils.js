@@ -1,7 +1,7 @@
 const { Patient } = require('../models/model')
 
 async function verifyBox(box) {
-    return await Patient.exists({ box, active: true })
+    return await Patient.exists({ box, 'dataActive.activeMed': true })
 }
 
 

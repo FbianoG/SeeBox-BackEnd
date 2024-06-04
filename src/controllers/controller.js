@@ -133,8 +133,23 @@ async function uptadeDataMed(req, res) {
     try {
         if (!_id || _id.trim() === '' || !dataMed || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
         const findBox = await verifyBox(box) // verifica se o 'box' já está ativo
-        if (findBox && findBox._id != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
+        if (findBox && findBox._id.toString() != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
         const update = await Patient.findByIdAndUpdate({ _id }, { box, dataMed })
+        if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
+        return res.status(200).json({ message: 'Paciente atualizado com sucesso!' })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Erro interno de servidor.' })
+    }
+}
+
+async function uptadeDataEnf(req, res) {
+    const { _id, dataEnf, box } = req.body
+    try {
+        if (!_id || _id.trim() === '' || !dataEnf || !box) return res.status(400).json({ message: 'Paciente não encontrado.' })
+        const findBox = await verifyBox(box) // verifica se o 'box' já está ativo
+        if (findBox && findBox._id.toString() != _id) return res.status(400).json({ message: 'Já possui paciente cadastrado neste leito.' })
+        const update = await Patient.findByIdAndUpdate({ _id }, { box, dataEnf })
         if (!update) return res.status(400).json({ message: 'Paciente não encontrado.' })
         return res.status(200).json({ message: 'Paciente atualizado com sucesso!' })
     } catch (error) {
@@ -186,4 +201,4 @@ async function updateRoom(req, res) {
     }
 }
 
-module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatientsMed, getPatientsEnf, getPatientsRec, getPatientsAlta, uptadeDataMed, archivePatient, updateStatus, updateRoom }
+module.exports = { createUser, login, getLeitos, updateLeito, createPatient, getPatientsMed, getPatientsEnf, getPatientsRec, getPatientsAlta, uptadeDataMed, uptadeDataEnf, archivePatient, updateStatus, updateRoom }
